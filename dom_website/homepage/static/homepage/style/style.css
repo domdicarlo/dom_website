@@ -1,0 +1,35 @@
+.mainP{
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mainImg{
+  margin: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.jumbotron{
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0;
+  max-width: 900px;
+}
+
+hr{
+  border-color: gold;
+}
+
+.caption{
+  font-style: italic;
+  font-size: 0.75em;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.img-fluid{
+  width: 300px;
+  height: 300px;
+}
