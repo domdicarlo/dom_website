@@ -78,12 +78,16 @@ WSGI_APPLICATION = 'dom_website.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dom_database',
-        'USER': 'postgres',
-        'PASSWORD': 'nematode',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': 'sql_server.pyodbc',
+        'NAME': 'dom-website',
+        'USER': 'dom@domdicarlo',
+        'PASSWORD': 'Insecure!',
+        'HOST': 'domdicarlo.database.windows.net',
+        'PORT': '',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 13 for SQL Server',
+        },
+    },
     }
 }
 
