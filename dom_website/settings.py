@@ -78,16 +78,12 @@ WSGI_APPLICATION = 'dom_website.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'sql_server.pyodbc',
-        'NAME': 'dom-website',
-        'USER': 'dom@domdicarlo',
-        'PASSWORD': 'Insecure!',
-        'HOST': 'domdicarlo.database.windows.net',
-        'PORT': '',
-        'OPTIONS': {
-            'driver': 'ODBC Driver 13 for SQL Server',
-        },
-    },
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'vRxq8vIXKp',
+        'USER': 'vRxq8vIXKp',
+        'PASSWORD': 'LwQ6jBaq4J',
+        'HOST': 'remotemysql.com',
+        'PORT': '3306',
     }
 }
 
