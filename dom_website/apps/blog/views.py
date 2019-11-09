@@ -7,19 +7,21 @@ from django.utils import timezone
 
 # Create your views here.
  
-class IndexView(generic.ListView):
-    """
-    Index to look at last five blog posts
-    """
-    # the name of the template file to serve
-    template_name = 'blog/index.html'
-    # what to call the context to reference in template
-    context_object_name = 'categories'
-
-    # what model to grab a list of 
-    model = Category
-            
+# class IndexView(generic.ListView):
+#     """
+#     Index to look at last five blog posts
+#     """
+#     # the name of the template file to serve
+#     template_name = 'blog/index.html'
+#     # what to call the context to reference in template
+#     context_object_name = 'categori
+#     # what model to grab a list of 
+#     model = Category
+                
         
+        
+def index(request):
+  return render(request, 'blog/index2.html')
 
 
 def view_post(request, slug):   
