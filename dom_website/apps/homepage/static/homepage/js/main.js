@@ -149,7 +149,14 @@
 			var section = $(this).data('nav-section'),
 				navbar = $('#navbar');
 
-				if ( $('[data-section="' + section + '"]').length ) {
+				console.log(section);
+
+				// hand coded in here to handle links in navbar
+				if (section == 'blog') {
+					window.open('/blog','_self');
+				}
+
+				else if ( $('[data-section="' + section + '"]').length ) {
 			    	$('html, body').animate({
 			        	scrollTop: $('[data-section="' + section + '"]').offset().top - 55
 			    	}, 500);
