@@ -7,7 +7,7 @@ class Blog(models.Model):
    title = models.CharField(max_length=100, unique=True)
    slug = models.SlugField(max_length=100, unique=True)
    body = models.TextField()
-   pub_date = models.DateTimeField(db_index=True, auto_now_add=True)
+   pub_date = models.DateTimeField(db_index=True)
    # can't delete a category if it has posts assigned to it.
    category = models.ForeignKey('blog.Category', on_delete=models.PROTECT)
  
