@@ -13,6 +13,21 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import sys
 
+####### DJANGO MARKUPFIELD APP https://github.com/jamesturk/django-markupfield
+import markdown
+from docutils.core import publish_parts
+
+def render_rest(markup):
+    parts = publish_parts(source=markup, writer_name="html4css1")
+    return parts["fragment"]
+
+MARKUP_FIELD_TYPES = (
+    ('markdown', markdown.markdown),
+    ('ReST', render_rest),
+)
+###### END OF DJANGO MARKUPFIELD APP
+
+
 # Join apps folder to the project roots so we can reference the apps
 # in the folder. 
 PROJECT_ROOT = os.path.dirname(__file__)

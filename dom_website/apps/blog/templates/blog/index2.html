@@ -68,13 +68,31 @@
     </div>
   </header>
 
-  <div class="content container">
-      <div class="row">
-          <div class="col-md-8">
-          {% block content %}
-          {% endblock %}
-          </div>
+  <!-- Main Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        {% if latest_posts %}
+          {% for post in latest_posts %}
+            <div class="post-preview">
+              <!-- <a href="{% static 'blog/' %}"> -->
+                <h2 class="post-title">
+                  <a href="{% url 'blog:view_post.html' post.slug %}">{{ post.title }}</a>
+                </h2>
+              </a>
+              <p class="post-meta">Posted 
+                on {{post.pub_date}}</p>
+            </div>
+          {% endfor %}
+        {% else %}
+            <p>No posts are available.</p>
+        {% endif %}
+        <!-- Pager -->
+        <!-- <div class="clearfix">
+          <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
+        </div> -->
       </div>
+    </div>
   </div>
 
   <hr>
