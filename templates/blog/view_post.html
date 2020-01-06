@@ -1,7 +1,24 @@
 {% extends 'blog/base.html' %} 
+
 {% block head_title %}{{ post.title }}{% endblock %}
+
 {% block title %}{{ post.title }}{% endblock %}
  
 {% block content %}
-   {{ post.body }}
+<div>
+  <h2 class = "blog-title">
+    <p>{{ post.pub_date| date:"F d, Y" }}</p>
+    <p>. . .</p>
+    {{ post.title }}
+  </h2>
+</div>
+
+<div class="blog-body">
+  {{ post.body }}
+  <div class="clearfix">
+    <br>
+    <a class="btn btn-primary float-right" href="/blog">Other Posts &rarr;</a>
+  </div>
+</div>
+
 {% endblock %}

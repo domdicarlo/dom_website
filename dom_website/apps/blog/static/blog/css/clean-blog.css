@@ -395,6 +395,7 @@ footer .copyright {
   font-size: 14px;
   font-weight: 800;
   padding: 15px 25px;
+  margin: 20px 0;
   letter-spacing: 1px;
   text-transform: uppercase;
   border-radius: 0;
@@ -417,3 +418,29 @@ footer .copyright {
   font-size: 16px;
   padding: 25px 35px;
 }
+
+/*
+My additions:
+*/
+.blog-body {
+  text-align: left;
+  margin: 0 auto;
+  max-width: 35em;
+}
+
+img[alt=post_image] { 
+  max-width: 35em; 
+  max-height: 30em; 
+  margin: 2em auto;
+  display: block;
+}
+
+.blog-title {
+  text-align: center;
+  margin: 2em 0;
+  font-size: 48px;
+}
+
+/*
+End of my additions
+*/
