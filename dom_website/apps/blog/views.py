@@ -22,7 +22,7 @@ from django.utils import timezone
         
 def index(request):
   latest_posts = Blog.objects.order_by('-pub_date')[:5]
-  return render(request, 'blog/index2.html', {'latest_posts': latest_posts})
+  return render(request, 'blog/index.html', {'latest_posts': latest_posts})
 
 
 def view_post(request, slug):   

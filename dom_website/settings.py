@@ -55,7 +55,8 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'polls.apps.PollsConfig',
     'homepage.apps.HomepageConfig',
-    'blog',
+    'blog.apps.BlogConfig',
+    'text_game.apps.TextGameConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
