@@ -149,13 +149,21 @@
 			var section = $(this).data('nav-section'),
 				navbar = $('#navbar');
 
+				console.log(section);
 
-				if ( $('[data-section="' + section + '"]').length ) {
+				// NAVBAR LINKS TO PAGES
+				if (section == 'text_game') {
+					window.open('/text_game','_self');
+				}
+				if (section == 'blog') {
+					window.open('/blog','_self');
+				}
+
+				else if ( $('[data-section="' + section + '"]').length ) {
 			    	$('html, body').animate({
 			        	scrollTop: $('[data-section="' + section + '"]').offset().top - 55
 			    	}, 500);
 			   }
-			 
 
 		    if ( navbar.is(':visible')) {
 		    	navbar.removeClass('in');

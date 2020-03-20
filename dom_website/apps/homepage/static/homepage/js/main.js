@@ -151,7 +151,10 @@
 
 				console.log(section);
 
-				// hand coded in here to handle links in navbar
+				// NAVBAR LINKS TO PAGES
+				if (section == 'text_game') {
+					window.open('/text_game','_self');
+				}
 				if (section == 'blog') {
 					window.open('/blog','_self');
 				}

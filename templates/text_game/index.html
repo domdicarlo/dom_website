@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+{% load static %}
+<head>
+		<title>Black Paths</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="{% static 'text_game/js/jquery.terminal-2.15.1.js' %}"></script>
+		<link href="{% static 'text_game/css/style.css' %}" rel="stylesheet">
+		<!--For terminal-->
+		<link href="{% static 'text_game/css/jquery.terminal-2.15.1.css' %}" rel="stylesheet"></script>
+</head>
+
+<body>
+    <div id="game-text">
+    </div>
+    <input id="user-input" placeholder="Please type your command.."></input>
+    <div id="some_id">
+    </div>
+
+    <script type="text/javascript" src="{% static 'text_game/js/rooms.js' %}"></script>
+    <script type="text/javascript" src="{% static 'text_game/js/game.js' %}"></script>
+
+</body>
