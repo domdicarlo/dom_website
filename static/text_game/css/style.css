@@ -1,11 +1,11 @@
 body {
   font-size: 1.5em;
-  background-color: black;
-  color: white;
+  background-color: white;
+  color: black;
 }
 
 .terminal, .cmd, .terminal .terminal-output div div, .cmd .prompt {
-    font-size: 20px;
-    line-height: 24px;
+    font-size: 30px;
+    line-height: 34px;
     --size: 2;
 }
