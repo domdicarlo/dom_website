@@ -7,19 +7,30 @@
 //     greetings: 'Black Paths'
 // });
 
+const welcomeMessage = "-----------------------------------------------------------------<br>\
+Welcome to Black Paths, a game of exploration based entirely\
+ in text. <br><br> For a list of possible commands, type \"help\" and hit enter\
+ -----------------------------------------------------------------";
+
 const startingRoom = "A room";
 const startingSpace = "Central";
+const startingEvent = "Central";
 var currentRoom = startingRoom;
 var currentSpace = startingSpace;
+var currentSpaceDetail = rooms[currentRoom]["spaces"][currentSpace]["detail"];
 var commands = ["go", "inventory"];
 var inventory = ["lighter"];
 
-function changeRoom(dir) {
-    if (rooms[currentRoom][currentSpace].directions[dir] !== undefined) {
-        currentRoom = rooms[currentRoom][currentSpace].directions[dir];
-        $('.terminal-output').append("<p>" + rooms[currentRoom].description + "</p>");
+function changeSpace(dir) {
+    if (rooms[currentRoom]["spaces"][currentSpace].directions[dir] !== undefined) {
+        currentSpace = rooms[currentRoom]["spaces"][currentSpace].directions[dir];
+        currentSpaceDetail = rooms[currentRoom]["spaces"][currentSpace]["detail"];
+        // only add in detail text if it exits.
+        if (currentSpaceDetail !== undefined) {
+            $('.terminal-output').append("<p>" + currentSpaceDetail + "</p>");
+        }
     } else {
-        $('.terminal-output').append("<p>You cannot go that way!</p>");
+        $('.terminal-output').append("<p>You can't walk through walls...</p>");
     }
 
 
@@ -54,7 +65,7 @@ function playerInput(input) {
     switch (command) {
         case "go":
             var dir = input.split(" ")[1];
-            changeRoom(dir);
+            changeSpace(dir);
             break;
         case "help":
             showHelp();
@@ -85,5 +96,11 @@ $('body').terminal(
   function(command) {
     playerInput(command);
   },
- { greetings: 'Black Paths'}, 
+ { greetings: ""}, 
  { prompt: '>', name: 'test' });
+
+// give starting message:
+$('.terminal-output').append("<p>" + welcomeMessage + "</p>");
+$('.terminal-output').append("<p>" + rooms[currentRoom]["description"] + "</p>");
+$('.terminal-output').append("<p>" + currentSpaceDetail + "</p>");
+

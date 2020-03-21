@@ -9,3 +9,37 @@ body {
     line-height: 24px;
     --size: 2;
 }
+
+.terminal {
+  margin-left: 20em;
+  margin-right: 20em;
+}
+
+#left-sidebar {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    font-family: monospace;
+    /* font-family: FreeMono, monospace; this don't work on Android */
+    font-size: 1em;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+a:link, a:visited, a:active {
+  color: #aaa;
+}
+a:hover {
+  color: red;
+}
+
+#right-sidebar {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    font-family: monospace;
+    /* font-family: FreeMono, monospace; this don't work on Android */
+    font-size: 1em;
+    color: #aaa;
+
+}

@@ -9,12 +9,13 @@ var rooms = {
                         at any moment. The floor is wooden and creaky, and the walls\
                         are covered with an old, tan 1960s patterned wallpaper which\
                         has seen better days. There are some mundane things in the room:\
-                        a desk, a fridge, a painting, and a couch and coffetable.\
+                        a desk, a fridge, a painting, and a couch and coffee table.\
                         There is a steel door at the North end of the room, \
                         which you must have come through to get\
                         in here.",
         "spaces": {
             "Central": {
+                "detail": "You are in the center of the room.",
                 "directions": {
                     "north": "North",
                     "south": "South",
@@ -73,7 +74,7 @@ var rooms = {
             "North West": {
                 "detail": "You hear a low hum from the other side of the wall.\
                            There is a tattered couch with an antiquated wooden\
-                           coffee table in front of it",
+                           coffee table in front of it.",
                 "directions": {
                     "south": "West",
                     "east": "North"
