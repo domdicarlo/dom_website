@@ -207,7 +207,7 @@ body.full-screen-terminal .terminal {
 .cmd,
 .cmd span,
 .cmd div {
-    font-family: monospace;
+    font-family: verona;
     /*font-family: FreeMono, monospace; this don't work on Android */
     font-size: 12px;
     line-height: 15px;
