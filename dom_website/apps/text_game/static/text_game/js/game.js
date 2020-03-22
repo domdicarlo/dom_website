@@ -1,26 +1,35 @@
-// $('body').terminal({
-//     hello: function(what) {
-//         this.echo('Hello, ' + what +
-//                   '. Wellcome to this terminal.');
-//     }
-// }, {
-//     greetings: 'Black Paths'
-// });
-
-const welcomeMessage = "-----------------------------------------------------------------<br>\
+// Some helpful constants
+const welcomeMessage = "<hr> <br>\
 Welcome to Black Paths, a game of exploration based entirely\
- in text. <br><br> For a list of possible commands, type \"help\" and hit enter\
- -----------------------------------------------------------------";
-
+ in text. <br><br> For a list of possible commands, type \"help\" and hit enter <br><br> <hr>";
 const startingRoom = "A room";
 const startingSpace = "Central";
-const startingEvent = "Central";
+const startingEvent = "";
+
+// In game variables, for which we change as the game progresses
 var currentRoom = startingRoom;
 var currentSpace = startingSpace;
 var currentSpaceDetail = rooms[currentRoom]["spaces"][currentSpace]["detail"];
 var commands = ["go", "inventory"];
 var inventory = ["lighter"];
 
+/* changeSpace
+ * Description: Takes in a cardinal direction, and tries to change the
+ *              players current position in the room by moving in that
+ *              direction. 
+ *
+ *  Input: String dir - should be one of "NORTH", "SOUTH", "EAST", or "WEST"
+ *
+ *  Output: Changes the player's location by changing "currentSpace". If movement
+ *          results in a change in room, changes "currentRoom" too. If direction
+ *          is an invalid move, doesn't make the move. Prints out text for movement
+ *          either way (either the event triggered by the movement, or
+ *          movement error msg).
+ * 
+ *  To Add: Support for direction synonyms. Support for diagonal directions. 
+ *          Multiple types of error messages for movement (depending on reason for
+ *          inability)
+ */
 function changeSpace(dir) {
     if (rooms[currentRoom]["spaces"][currentSpace].directions[dir] !== undefined) {
         currentSpace = rooms[currentRoom]["spaces"][currentSpace].directions[dir];
@@ -36,6 +45,15 @@ function changeSpace(dir) {
 
 }
 
+/* showHelp
+ * Description: Prints help information (such as commands)
+ *
+ *  Input: Nothing.
+ *
+ *  Output: Prints help info to screen.
+ * 
+ *  To Add: Possible arguments, for more information. More helpful information
+ */
 function showHelp() {
     $('.terminal-output').append("<p>Here are the possible commands: </p>");
     $('.terminal-output').append("<p><ul>");
@@ -46,6 +64,15 @@ function showHelp() {
 
 }
 
+/* showInventory
+ * Description: Prints inventory content to screen
+ *
+ *  Input: Nothing.
+ *
+ *  Output: Prints inventory to screen.
+ * 
+ *  To Add: Unsure now.
+ */
 function showInventory() {
     if (inventory.length === 0) {
         $('.terminal-output').append("<p>You are not carrying anything!</p>");
@@ -60,6 +87,18 @@ function showInventory() {
 
 }
 
+/* playerInput
+ * Description: Handles all terminal input, as it is.
+ *
+ *  Input: The input text on the terminal before
+ *         hitting "enter"
+ *
+ *  Output: Calls on appropriate function based on input,
+ *          or prints to the screen that the input was
+ *          invalid.
+ * 
+ *  To Add: A lot. We need to build an actual parser.
+ */
 function playerInput(input) {
     var command = input.split(" ")[0];
     switch (command) {
@@ -78,20 +117,24 @@ function playerInput(input) {
     }
 }
 
-// $(document).ready(function() {
-//     $('.terminal-output').append("<p>" + rooms.start.description + "</p>");
+/* printStartInfo
+ * Description: Prints to the terminal all info for starting a new
+                game (welcome message, starting room description, etc.)
+ *
+ *  Input: Nothing.
+ *
+ *  Output: Prints to screen.
+ * 
+ *  To Add: Unsure now. Some sort of initial state
+ *          (You are unaware of how you got here)
+ */
+function printStartInfo() {
+    $('.terminal-output').append("<p>" + welcomeMessage + "</p>");
+    $('.terminal-output').append("<p>" + rooms[currentRoom]["description"] + "</p>");
+    $('.terminal-output').append("<p>" + currentSpaceDetail + "</p>");
+}
 
-//     $(document).keypress(function(key) {
-//         if (key.which === 13 && $('#user-input').is(':focus')) {
-//             var value = $('#user-input').val().toLowerCase();
-//             $('#user-input').val("");
-//             playerInput(value);
-//         }
-//     })
-
-
-// })
-
+// The terminal function that creates the game interface.
 $('body').terminal(
   function(command) {
     playerInput(command);
@@ -100,7 +143,4 @@ $('body').terminal(
  { prompt: '>', name: 'test' });
 
 // give starting message:
-$('.terminal-output').append("<p>" + welcomeMessage + "</p>");
-$('.terminal-output').append("<p>" + rooms[currentRoom]["description"] + "</p>");
-$('.terminal-output').append("<p>" + currentSpaceDetail + "</p>");
-
+printStartInfo();
