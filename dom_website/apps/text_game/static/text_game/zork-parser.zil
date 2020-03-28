@@ -8,7 +8,6 @@
   begin with 'P-'.  Local variables are not restricted in any
   way.
 "
-;"From what I can tell, we init those globals as NULL"
 <SETG SIBREAKS ".,\"">
 
 ;"verb"
@@ -108,89 +107,165 @@
    If the input is <direction> or <walk> <direction>, fall out immediately
    setting PRSA to ,V?WALK and PRSO to <direction>.  Otherwise, perform
    all required orphaning, syntax checking, and noun clause lookup."
-;"routine is called PARSER. Arguments:
-; 'AUX', '(PTR, P-LEXSTART)', 'WRD', '(VAL 0)', '(VERB <>)', uh rest of"
-; "those things"
 <ROUTINE PARSER ("AUX" (PTR ,P-LEXSTART) WRD (VAL 0) (VERB <>) (OF-FLAG <>)
 		       OWINNER OMERGED LEN (DIR <>) (NW 0) (LW 0) (CNT -1))
+  ;"some loop"
 	<REPEAT ()
 	 ;"if the first parentheses is true, then do the second parentheses"
+	 ; "If CNT + 1 > P-ITBLLEN, simply return"
+	 ; "Hmm, I think P-ITBLLEN is some sort of upper bound on phrase length"
+	 ; "Notice CNT starts as -1, so this first cond sets CNT to 0"
 		<COND (<G? <SET CNT <+ .CNT 1>> ,P-ITBLLEN> <RETURN>)
+				   ;"T here means ELSE essentially"
 		      (T
+					;"If the P-OFLAG is NOT set:"
 		       <COND (<NOT ,P-OFLAG>
+					;"Set the .CNT field of P-OTBL to the .CNT field of P-ITBL"
+					;" Both are tables "
 			      <PUT ,P-OTBL .CNT <GET ,P-ITBL .CNT>>)>
+					; "Unconditionally, so long as we didnt return, set the .CNT"
+					; "field of P-ITBL to 0"
 		       <PUT ,P-ITBL .CNT 0>)>>
+  ;"Set a bunch of variables. SETG is setting a global variable"
 	<SET OWINNER ,WINNER>
 	<SET OMERGED ,P-MERGED>
 	<SETG P-ADVERB <>>
 	<SETG P-MERGED <>>
 	<SETG P-END-ON-PREP <>>
+	; "This is an interesting move and Im not sure what to make of it"
+	; "P-MATCHLEN gets set to 0 at some point"
 	<PUT ,P-PRSO ,P-MATCHLEN 0>
 	<PUT ,P-PRSI ,P-MATCHLEN 0>
 	<PUT ,P-BUTS ,P-MATCHLEN 0>
+	; "QUOTE-FLAG is off AND  some cmp with WINNER and PLAYER... but not one where they are exactly equal either.."
+	; "Since we see that we set winner to player in the next line"
 	<COND (<AND <NOT ,QUOTE-FLAG> <N==? ,WINNER ,PLAYER>>
 	       <SETG WINNER ,PLAYER>
+				 ; "set 'here' to the location of the player"
 	       <SETG HERE <META-LOC ,PLAYER>>
 	       ;<COND (<NOT <FSET? <LOC ,WINNER> ,VEHBIT>>
 		      <SETG HERE <LOC ,WINNER>>)>
+				; "check whether the area we are at is LIT (fire lol)"
 	       <SETG LIT <LIT? ,HERE>>)>
-	<COND (,RESERVE-PTR
+	<COND 
+				; "First if CASE --> I'm thinking this one is asking if RESERVE-PTR is not equal to NULL"
+				(,RESERVE-PTR
+	 		   ; "set pointer to the reserve pointer"
 	       <SET PTR ,RESERVE-PTR>
+				 ; "I'm thinking this one means just copy the whole table into 
+				    reserve-lexv"
 	       <STUFF ,RESERVE-LEXV ,P-LEXV>
+				 ; "check if player == winner AND SUPER-BRIEF is NOT true"
+				 ; "(cant find this variable within this file, ta fuck?"
 	       <COND (<AND <NOT ,SUPER-BRIEF> <EQUAL? ,PLAYER ,WINNER>>
+				 ; "this just means carriage return line feed. Does this mean we just print
+				    something? or return this? very confusing"
 		      <CRLF>)>
+				 ;" set back the pointer to nothing I guess?"
 	       <SETG RESERVE-PTR <>>
 	       <SETG P-CONT <>>)
+				; "Second else if CASE --> I'm thinking this one is asking if P-CONT is not equal to NULL"
 	      (,P-CONT
+					; "set this PTR var to P-CONT"
 	       <SET PTR ,P-CONT>
-	       <COND (<AND <NOT ,SUPER-BRIEF>
-			   <EQUAL? ,PLAYER ,WINNER>
-			   <NOT <VERB? SAY>>>
+				 ; "check if player == winner AND SUPER-BRIEF is NOT true AND the verb wasnt 'say'"
+				 ; "(cant find this variable within this file, ta fuck?"
+	       <COND (<AND <NOT ,SUPER-BRIEF> 
+							<EQUAL? ,PLAYER ,WINNER>
+							<NOT <VERB? SAY>>>
 		      <CRLF>)>
+					; "set this P-CONT global var to NULL again"
 	       <SETG P-CONT <>>)
+				; "Else CASE --"
 	      (T
+				; "set player to winner"
 	       <SETG WINNER ,PLAYER>
+				; "set QUOTE-FLAG to NULL ?"
 	       <SETG QUOTE-FLAG <>>
+				; "Checks if the VEHBIT is set for the WINNER's location (the player's location)"
+				; "VEHBIT is vehicle. This doesn't mean vehicles strictly, but
+				   anything a player can enter (i.e. a chair or a bed)"
 	       <COND (<NOT <FSET? <LOC ,WINNER> ,VEHBIT>>
+				  ;"set here to the location of the winner/player"
 		      <SETG HERE <LOC ,WINNER>>)>
-	       <SETG LIT <LIT? ,HERE>>
+
+				;"set the lit boolean to whether or not HERE is lit"
+	       <SETG LIT <LIT? ,HERE>> 
+				;"if it's not super brief, output CRLF I guess"
 	       <COND (<NOT ,SUPER-BRIEF> <CRLF>)>
+				 ; "hmmm interesting. so this is where we print text to the screen
+				   in particular we print the prompt here, meaning we are done?"
 	       <TELL ">">
-	       <READ ,P-INBUF ,P-LEXV>)>
+				 ; "read what's in P-INBUF into P-LEXV I believe"
+	       <READ ,P-INBUF ,P-LEXV>)> 
+
+				 ;"okay we are not in any sort of cond now"
+				 ;"set P-LEN glob var to the P-LEXWORDS field of P-LEXV"
 	<SETG P-LEN <GETB ,P-LEXV ,P-LEXWORDS>>
+	; "if the length of the input or something is 0, we dunno what they said"
 	<COND (<ZERO? ,P-LEN> <TELL "I beg your pardon?" CR> <RFALSE>)>
-	<COND (<EQUAL? <SET WRD <GET ,P-LEXV .PTR>> ,W?OOPS>
+
+	<COND 
+				; "First if case --> is the first word OOPS?"
+				(<EQUAL? <SET WRD <GET ,P-LEXV .PTR>> ,W?OOPS>
+
+				; "if the PTR + P-LEXELEN is equal to a period or comma"
 	       <COND (<EQUAL? <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>
 			      ,W?PERIOD ,W?COMMA>
+						;" then you set the pointer to be plus P-LEXELEN"
 		      <SET PTR <+ .PTR ,P-LEXELEN>>
+					; "and you subtract one from the P-LEN"
 		      <SETG P-LEN <- ,P-LEN 1>>)>
-	       <COND (<NOT <G? ,P-LEN 1>>
+
+	       <COND 
+					; "if P-LEN is not greater than 1"
+					; "I think this means that the input was ONLY OOPS"
+				 (<NOT <G? ,P-LEN 1>>
 		      <TELL "I can't help your clumsiness." CR>
 		      <RFALSE>)
+
+				 ; "Second else if. If the O-PTR in the OOPS-TABLE is not NULL (?)"
 		     (<GET ,OOPS-TABLE ,O-PTR>
-		      <COND (<AND <G? ,P-LEN 2>
-				  <EQUAL? <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>
-					  ,W?QUOTE>>
-			     <TELL
-"Sorry, you can't correct mistakes in quoted text." CR>
-			     <RFALSE>)
-			    (<G? ,P-LEN 2>
-			     <TELL
-"Warning: only the first word after OOPS is used." CR>)>
+
+		      <COND 
+						(<AND <G? ,P-LEN 2>
+						<EQUAL? <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>
+							,W?QUOTE>>
+						<TELL
+						"Sorry, you can't correct mistakes in quoted text." CR>
+						<RFALSE>)
+
+						(<G? ,P-LEN 2>
+						<TELL
+							"Warning: only the first word after OOPS is used." CR>)
+					>
+
+					;"the rest is not in the above cond"
+					; "set AGAIN-LEXV[O-PTR in the OOPS table - the val]
+						 to P-LEXV[PTR + P-LEXELEN] "
 		      <PUT ,AGAIN-LEXV <GET ,OOPS-TABLE ,O-PTR>
-			   <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>>
+						<GET ,P-LEXV <+ .PTR ,P-LEXELEN>>>
+
 		      <SETG WINNER .OWINNER> ;"maybe fix oops vs. chars.?"
+					
 		      <INBUF-ADD <GETB ,P-LEXV <+ <* .PTR ,P-LEXELEN> 6>>
-				 <GETB ,P-LEXV <+ <* .PTR ,P-LEXELEN> 7>>
-				 <+ <* <GET ,OOPS-TABLE ,O-PTR> ,P-LEXELEN> 3>>
+						<GETB ,P-LEXV <+ <* .PTR ,P-LEXELEN> 7>>
+						<+ <* <GET ,OOPS-TABLE ,O-PTR> ,P-LEXELEN> 3>>
+
 		      <STUFF ,AGAIN-LEXV ,P-LEXV>
+
 		      <SETG P-LEN <GETB ,P-LEXV ,P-LEXWORDS>>
+
 		      <SET PTR <GET ,OOPS-TABLE ,O-START>>
+
 		      <INBUF-STUFF ,OOPS-INBUF ,P-INBUF>)
+
+				 ; "ELSE case."
 		     (T
 		      <PUT ,OOPS-TABLE ,O-END <>>
 		      <TELL "There was no word to replace!" CR>
 		      <RFALSE>)>)
+
 	      (T
 	       <COND (<NOT <EQUAL? .WRD ,W?AGAIN ,W?G>>
 		      <SETG P-NUMBER 0>)>
