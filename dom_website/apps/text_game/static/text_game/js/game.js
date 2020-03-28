@@ -1,5 +1,5 @@
 // Some helpful constants
-const versionInfo = "Version 0.1: Early Alpha <br>Gameplay limited to movement\
+const versionInfo = "Version 0.0.1: Early Alpha <br>Gameplay limited to movement\
                      within a single room. Check back often for updates!<br><br> <hr>";
 const welcomeMessage = "<hr> <br>\
 Welcome to Black Paths, a game of exploration based entirely\
