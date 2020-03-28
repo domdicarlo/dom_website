@@ -1,4 +1,6 @@
 // Some helpful constants
+const versionInfo = "Version 0.1: Early Alpha <br>Gameplay limited to movement\
+                     within a single room. Check back often for updates!<br><br> <hr>";
 const welcomeMessage = "<hr> <br>\
 Welcome to Black Paths, a game of exploration based entirely\
  in text. <br><br> For a list of possible commands, type \"help\" and hit enter <br><br> <hr>";
@@ -130,6 +132,7 @@ function playerInput(input) {
  */
 function printStartInfo() {
     $('.terminal-output').append("<p>" + welcomeMessage + "</p>");
+    $('.terminal-output').append("<p>" + versionInfo + "</p>");
     $('.terminal-output').append("<p>" + rooms[currentRoom]["description"] + "</p>");
     $('.terminal-output').append("<p>" + currentSpaceDetail + "</p>");
 }
