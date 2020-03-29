@@ -241,16 +241,24 @@
 					>
 
 					;"the rest is not in the above cond"
-					; "set AGAIN-LEXV[O-PTR in the OOPS table - the val]
+					; "set AGAIN-LEXV[O-PTR in the OOPS table: the val]
 						 to P-LEXV[PTR + P-LEXELEN] "
 		      <PUT ,AGAIN-LEXV <GET ,OOPS-TABLE ,O-PTR>
 						<GET ,P-LEXV <+ .PTR ,P-LEXELEN>>>
 
-		      <SETG WINNER .OWINNER> ;"maybe fix oops vs. chars.?"
-					
-		      <INBUF-ADD <GETB ,P-LEXV <+ <* .PTR ,P-LEXELEN> 6>>
-						<GETB ,P-LEXV <+ <* .PTR ,P-LEXELEN> 7>>
-						<+ <* <GET ,OOPS-TABLE ,O-PTR> ,P-LEXELEN> 3>>
+		      <SETG WINNER .OWINNER> ;"maybe fix oops vs. chars.? NOT MY COMMENT -- THEIRS"
+
+					;"This is a defined routine in the file, with the following desc:"
+					;"Put the words in the positions specified from P-INBUF to the end of
+					OOPS-INBUF, leaving the appropriate pointers in AGAIN-LEXV"
+					; "After adding the following arguments, "
+		      <INBUF-ADD 
+						; "set len = P-LEXV[(PTR * P-LEXELEN) + 6] "
+						<GETB ,P-LEXV <+ <* .PTR ,P-LEXELEN> 6>> ;"len"
+						; "set beg = P-LEXV[(PTR * P-LEXELEN) + 7]"
+						<GETB ,P-LEXV <+ <* .PTR ,P-LEXELEN> 7>> ;"beg"
+						; "set slot = (OOPS-TABLE[O-PTR] * P-LEXELEN) + 3"
+						<+ <* <GET ,OOPS-TABLE ,O-PTR> ,P-LEXELEN> 3> ;"slot">
 
 		      <STUFF ,AGAIN-LEXV ,P-LEXV>
 
@@ -486,22 +494,46 @@ or creatures." CR>
 		 <PUTB .DEST .CNT <GETB .SRC .CNT>>
 		 <COND (<DLESS? CNT 0> <RETURN>)>>>
 
-;"Put the word in the positions specified from P-INBUF to the end of
+;"Put the words in the positions specified from P-INBUF to the end of
 OOPS-INBUF, leaving the appropriate pointers in AGAIN-LEXV"
 <ROUTINE INBUF-ADD (LEN BEG SLOT "AUX" DBEG (CTR 0) TMP)
-	 <COND (<SET TMP <GET ,OOPS-TABLE ,O-END>>
+	 ; "start of COND"
+	 <COND (
+		 ; "If this is true ? "
+		 ; "this sets TMP to whatever is at the end of the OOPS table
+		    I presume"
+		; "could be false if there is nothing at the end of the OOPS table ?"
+		<SET TMP <GET ,OOPS-TABLE ,O-END>>
+		; "set DBEG to the value of TMP"
 		<SET DBEG .TMP>)
-	       (T
-		<SET DBEG <+ <GETB ,AGAIN-LEXV
-				   <SET TMP <GET ,OOPS-TABLE ,O-LENGTH>>>
-			     <GETB ,AGAIN-LEXV <+ .TMP 1>>>>)>
+
+		; "the else case"
+	  (T
+		; "we want to set DBEG to (AGAIN-LEXV[OOPS-TABLE[O-LENGTH]] + AGAIN-LEXV[OOPS-TABLE[O-LENGTH + 1]])"
+		<SET DBEG 
+			<+ <GETB ,AGAIN-LEXV <SET TMP <GET ,OOPS-TABLE ,O-LENGTH>>>
+			   <GETB ,AGAIN-LEXV <+ .TMP 1>>>
+    >)
+		>
+	 ; "end of COND"
+
+	; "set OOPS-TABLE[O-END] = DBEG + LEN"
 	 <PUT ,OOPS-TABLE ,O-END <+ .DBEG .LEN>>
+
+	; "a for loop, for ctr == len; ctr++"
 	 <REPEAT ()
+	 ; "set OOPS-INBUF[DBEG + CTR] = P-INBUF[BEG + CTR]"
 	  <PUTB ,OOPS-INBUF <+ .DBEG .CTR> <GETB ,P-INBUF <+ .BEG .CTR>>>
+		; "increment CTR"
 	  <SET CTR <+ .CTR 1>>
+		; "check if CTR == LEN"
 	  <COND (<EQUAL? .CTR .LEN> <RETURN>)>>
+
+	; "set AGAIN-LEXV[SLOT] = DBEG"
 	 <PUTB ,AGAIN-LEXV .SLOT .DBEG>
+	; "set AGAIN-LEXV[SLOT - 1] = len"
 	 <PUTB ,AGAIN-LEXV <- .SLOT 1> .LEN>>
+	 ; "end of ROUTINE"
 
 ;"Check whether word pointed at by PTR is the correct part of speech.
    The second argument is the part of speech (,PS?<part of speech>).  The
