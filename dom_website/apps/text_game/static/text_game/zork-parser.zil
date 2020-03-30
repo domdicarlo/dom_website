@@ -205,6 +205,7 @@
 	; "if the length of the input or something is 0, we dunno what they said"
 	<COND (<ZERO? ,P-LEN> <TELL "I beg your pardon?" CR> <RFALSE>)>
 
+ ; "Cond on handling OOPS versus other commands" 
 	<COND 
 				; "First if case --> is the first word OOPS?"
 				(<EQUAL? <SET WRD <GET ,P-LEXV .PTR>> ,W?OOPS>
@@ -260,12 +261,16 @@
 						; "set slot = (OOPS-TABLE[O-PTR] * P-LEXELEN) + 3"
 						<+ <* <GET ,OOPS-TABLE ,O-PTR> ,P-LEXELEN> 3> ;"slot">
 
+					; "Put contents of P-LEXV into AGAIN-LEXV"
 		      <STUFF ,AGAIN-LEXV ,P-LEXV>
 
+					; "Set P-LEN glob var to P-LEXV[P-LEXWORDS]"
 		      <SETG P-LEN <GETB ,P-LEXV ,P-LEXWORDS>>
 
+					; "Set PTR = OOPS-TABLE[O-START]"
 		      <SET PTR <GET ,OOPS-TABLE ,O-START>>
 
+					;"Put contents of OOPS-INBUF into P-INBUF"
 		      <INBUF-STUFF ,OOPS-INBUF ,P-INBUF>)
 
 				 ; "ELSE case."
@@ -273,42 +278,87 @@
 		      <PUT ,OOPS-TABLE ,O-END <>>
 		      <TELL "There was no word to replace!" CR>
 		      <RFALSE>)>)
+				; "End of COND on P-LEN"
 
+				; "Else case --> Non OOPS command"
 	      (T
-	       <COND (<NOT <EQUAL? .WRD ,W?AGAIN ,W?G>>
+				; "This is asking if the first WRD is NOT equal to AGAIN or G"
+				; "If it's NOT, then set P-NUMBER = 0"
+	       <COND 
+				 (<NOT <EQUAL? .WRD ,W?AGAIN ,W?G>>
 		      <SETG P-NUMBER 0>)>
+
+					; "Set O-END in the OOPS-TABLE to NULL (<>)"
 	       <PUT ,OOPS-TABLE ,O-END <>>)>
-	<COND (<EQUAL? <GET ,P-LEXV .PTR> ,W?AGAIN ,W?G>
-	       <COND (<ZERO? <GETB ,OOPS-INBUF 1>>
+			; "End of cond on handling OOPS versus other commands" 
+
+
+	; "start of Cond on P-LEXV[PTR]"
+	<COND 
+			; "If P-LEXV[PTR] = 'AGAIN' or 'G'"
+			(<EQUAL? <GET ,P-LEXV .PTR> ,W?AGAIN ,W?G>
+
+				; "Sub conds"
+
+				; "sub cond 1"
+	       <COND 
+				 ; "If OOPS-INBUF[1] == 0"
+				  (<ZERO? <GETB ,OOPS-INBUF 1>>
 		      <TELL "Beg pardon?" CR>
 		      <RFALSE>)
+
+				 ; "If P-OFLAG is set"
 		     (,P-OFLAG
 		      <TELL "It's difficult to repeat fragments." CR>
 		      <RFALSE>)
+
+				 ; "If P-WON is set"
 		     (<NOT ,P-WON>
 		      <TELL "That would just repeat a mistake." CR>
 		      <RFALSE>)
+
+				 ; "If P-LEN is greater than 1"
 		     (<G? ,P-LEN 1>
-		      <COND (<OR <EQUAL? <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>
-					,W?PERIOD ,W?COMMA ,W?THEN>
-				 <EQUAL? <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>
-					,W?AND>>
-			     <SET PTR <+ .PTR <* 2 ,P-LEXELEN>>>
-			     <PUTB ,P-LEXV ,P-LEXWORDS
-				   <- <GETB ,P-LEXV ,P-LEXWORDS> 2>>)
-			    (T
-			     <TELL "I couldn't understand that sentence." CR>
-			     <RFALSE>)>)
+				  ; "Then do this"
+		      <COND 
+							; "If this:"
+							; "If the input ends in period, comma, or 'then'"
+							(<OR <EQUAL? <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>
+														,W?PERIOD 
+														,W?COMMA 
+														,W?THEN>
+										; "Or if input ends in AND"
+										 <EQUAL? <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>
+														,W?AND>> 
+							; "Then do this"
+							; "set PTR = PTR + (2 * P-LEXELEN)"
+			     		<SET PTR <+ .PTR <* 2 ,P-LEXELEN>>>
+						  ; "set P-LEXV[P-LEXWORDS] = P-LEXV[P-LEXWORDS] - 2"
+			 		    <PUTB ,P-LEXV ,P-LEXWORDS
+				 			  <- <GETB ,P-LEXV ,P-LEXWORDS> 2>>)
+				  ; "Else case for OR statement"
+							(T
+							<TELL "I couldn't understand that sentence." CR>
+							<RFALSE>)>)
+				; "Else case for if P-LEN > 1 (so P-LEN <= 1)"
 		     (T
+				 ; "Set PTR = PTR + P-LEXELEN"
 		      <SET PTR <+ .PTR ,P-LEXELEN>>
+				 ; "Set P-LEXV[P-LEXWORDS] = P-LEXV[P-LEXWORDS] - 1"
 		      <PUTB ,P-LEXV ,P-LEXWORDS
-			    <- <GETB ,P-LEXV ,P-LEXWORDS> 1>>)>
-	       <COND (<G? <GETB ,P-LEXV ,P-LEXWORDS> 0>
+								<- <GETB ,P-LEXV ,P-LEXWORDS> 1>>)
+				>
+				; "end of sub cond 1"
+
+				; "start of sub cond 2"
+	      <COND (<G? <GETB ,P-LEXV ,P-LEXWORDS> 0>
 		      <STUFF ,P-LEXV ,RESERVE-LEXV>
 		      <SETG RESERVE-PTR .PTR>)
 		     (T
 		      <SETG RESERVE-PTR <>>)>
-	       ;<SETG P-LEN <GETB ,AGAIN-LEXV ,P-LEXWORDS>>
+				; "end of sub cond 2"
+
+	       ;<SETG P-LEN <GETB ,AGAIN-LEXV ,P-LEXWORDS>> ; "not my doing - Dom"
 	       <SETG WINNER .OWINNER>
 	       <SETG P-MERGED .OMERGED>
 	       <INBUF-STUFF ,OOPS-INBUF ,P-INBUF>
@@ -318,6 +368,9 @@
 	       <REPEAT ()
 		<COND (<IGRTR? CNT ,P-ITBLLEN> <RETURN>)
 		      (T <PUT ,P-ITBL .CNT <GET ,P-OTBL .CNT>>)>>)
+		; "End of if case for AGAIN or G case"
+
+
 	      (T
 	       <STUFF ,P-LEXV ,AGAIN-LEXV>
 	       <INBUF-STUFF ,P-INBUF ,OOPS-INBUF>
