@@ -351,70 +351,167 @@
 				; "end of sub cond 1"
 
 				; "start of sub cond 2"
-	      <COND (<G? <GETB ,P-LEXV ,P-LEXWORDS> 0>
+	      <COND 
+		    ; "If P-LEXV[P-LEXWORDS] == 0:"
+		  	(<G? <GETB ,P-LEXV ,P-LEXWORDS> 0>
+			  ; "Then set RESERVE-LEXV = P-LEXV (or a memcpy)"
 		      <STUFF ,P-LEXV ,RESERVE-LEXV>
+			  ; "Set RESERVE-PTR = .PTR"
 		      <SETG RESERVE-PTR .PTR>)
+
+			  ; "Else case (P-LEXV[P-LEXWORDS] !== 0)"
 		     (T
+			  ; "Set RESERVE-PTR = NULL"
 		      <SETG RESERVE-PTR <>>)>
 				; "end of sub cond 2"
 
 	       ;<SETG P-LEN <GETB ,AGAIN-LEXV ,P-LEXWORDS>> ; "not my doing - Dom"
+
 	       <SETG WINNER .OWINNER>
 	       <SETG P-MERGED .OMERGED>
+			; "Set P-INBUF to OOPS-INBUF (makes sense for AGAIN)"
 	       <INBUF-STUFF ,OOPS-INBUF ,P-INBUF>
+		   ; "set P-LEXV to AGAIN-LEXV"
 	       <STUFF ,AGAIN-LEXV ,P-LEXV>
+		   ; "Set CNT to -1"
 	       <SET CNT -1>
+		   ; "Set DIR to AGAIN-DIR"
 	       <SET DIR ,AGAIN-DIR>
+
+		   ; "New loop. We want CNT "
 	       <REPEAT ()
-		<COND (<IGRTR? CNT ,P-ITBLLEN> <RETURN>)
-		      (T <PUT ,P-ITBL .CNT <GET ,P-OTBL .CNT>>)>>)
+		   ; ""
+			<COND 
+				; "Increment and check if CNT > P-ITBLLEN"
+			   (<IGRTR? CNT ,P-ITBLLEN> <RETURN>)
+			    ; "Else,"
+				(T 
+					; "set P-ITBL[CNT] = P-OTBL[CNT]"
+					<PUT ,P-ITBL .CNT <GET ,P-OTBL .CNT>>)>>
+		)
 		; "End of if case for AGAIN or G case"
 
-
+		; "All other cases. Looks like we are headed to the meat of the parser"
 	      (T
+		   ; "set AGAIN-LEXV to hold the same mem as P-LEXV"
 	       <STUFF ,P-LEXV ,AGAIN-LEXV>
+		   ; "Set OOPS-INBUF to hold the same memory as P-INBUF"
 	       <INBUF-STUFF ,P-INBUF ,OOPS-INBUF>
+		   ; "set OOPS-TABLE[O-START] = PTR"
 	       <PUT ,OOPS-TABLE ,O-START .PTR>
+		   ; "set OOPS-TABLE[O-LENGTH] = (4 * P-LEN)"
 	       <PUT ,OOPS-TABLE ,O-LENGTH <* 4 ,P-LEN>>
+		   ; "Set LEN = 2 * ( PTR + (P-LEXELEN * P-LEXV[P-LEXWORDS])) "
 	       <SET LEN
 		    <* 2 <+ .PTR <* ,P-LEXELEN <GETB ,P-LEXV ,P-LEXWORDS>>>>>
-	       <PUT ,OOPS-TABLE ,O-END <+ <GETB ,P-LEXV <- .LEN 1>>
+		   ; "Set OOPS-TABLE[O-END] = (P-LEXV[LEN - 1] + P-LEXV[LEN - 2])"
+		   ; "Hmmm, I think this might be looking at the number of words total."
+	       <PUT ,OOPS-TABLE ,O-END 
+		   		  <+ <GETB ,P-LEXV <- .LEN 1>>
 					  <GETB ,P-LEXV <- .LEN 2>>>>
+            ; "Set RESERVE-PTR = NULL"
 	       <SETG RESERVE-PTR <>>
+		   ; "Set LEN = P-LEN"
 	       <SET LEN ,P-LEN>
+		   ; "Set P-DIR = NULL"
 	       <SETG P-DIR <>>
+		   ; "Set P-NCN = 0"
 	       <SETG P-NCN 0>
+		   ; "Set P-GETFLAGS = 0"
 	       <SETG P-GETFLAGS 0>
+
+		   ; "New loop"
 	       <REPEAT ()
-		<COND (<L? <SETG P-LEN <- ,P-LEN 1>> 0>
-		       <SETG QUOTE-FLAG <>>
-		       <RETURN>)
-		      (<OR <SET WRD <GET ,P-LEXV .PTR>>
-			   <SET WRD <NUMBER? .PTR>>>
-		       <COND (<ZERO? ,P-LEN> <SET NW 0>)
-			     (T <SET NW <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>>)>
-		       <COND (<AND <EQUAL? .WRD ,W?TO>
-				   <EQUAL? .VERB ,ACT?TELL ;,ACT?ASK>>
-			      <SET WRD ,W?QUOTE>)
-			     (<AND <EQUAL? .WRD ,W?THEN>
-				   <G? ,P-LEN 0>
-				   <NOT .VERB>
-				   <NOT ,QUOTE-FLAG> ;"Last NOT added 7/3">
-			      <COND (<EQUAL? .LW 0 ,W?PERIOD>
-				     <SET WRD ,W?THE>)
-				    (ELSE
-				     <PUT ,P-ITBL ,P-VERB ,ACT?TELL>
-				     <PUT ,P-ITBL ,P-VERBN 0>
-				     <SET WRD ,W?QUOTE>)>)>
-		       <COND (<EQUAL? .WRD ,W?THEN ,W?PERIOD ,W?QUOTE>
-			      <COND (<EQUAL? .WRD ,W?QUOTE>
-				     <COND (,QUOTE-FLAG
-					    <SETG QUOTE-FLAG <>>)
-					   (T <SETG QUOTE-FLAG T>)>)>
-			      <OR <ZERO? ,P-LEN>
-				  <SETG P-CONT <+ .PTR ,P-LEXELEN>>>
-			      <PUTB ,P-LEXV ,P-LEXWORDS ,P-LEN>
-			      <RETURN>)
+		  
+		; "Start of mega COND"
+		<COND 
+			  ; "Exit case. --If P-LEN < 0"
+			  (<L? <SETG P-LEN <- ,P-LEN 1>> 0>
+			  ; "set QUOTE-FLAG = NULL"
+			  <SETG QUOTE-FLAG <>>
+			  <RETURN>)
+
+              ; "Case 1 (big case): The word is not NULL"
+		      (<OR 
+				; "If either P-LEXV[PTR] !== NULL"
+			    <SET WRD <GET ,P-LEXV .PTR>>
+				; "Or PTR is a number"
+			   	<SET WRD <NUMBER? .PTR>>>
+				
+				; "then do ALL below"
+
+				; "Sub cond 1"
+				<COND 
+					;"If P-LEN == 0"
+					(<ZERO? ,P-LEN> 
+					;"Set NW = 0"
+					<SET NW 0>)
+					; "Else case:"
+					(T 
+					<SET NW <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>>)
+				>
+				; "ENDOF Sub cond 1"
+
+				; "StartOF Sub cond 2"
+				<COND 
+
+					(<AND <EQUAL? .WRD ,W?TO>
+					<EQUAL? .VERB ,ACT?TELL ;,ACT?ASK>>
+
+					<SET WRD ,W?QUOTE>)
+
+					( ; "If WRD == THEN && P-LEN > 0 && NO Verb && Not a quote (QUOTE-FLAG == NULL)"
+					<AND <EQUAL? .WRD ,W?THEN>
+					<G? ,P-LEN 0>
+					<NOT .VERB>
+					<NOT ,QUOTE-FLAG> ;"Last NOT added 7/3">
+
+					; "Then, enter this new cond"
+					<COND 
+					(	 ; "If LW == 0 || LW == '.' (a period)"
+						<EQUAL? .LW 0 ,W?PERIOD>
+						; "then set WRD = 'THE'"
+						<SET WRD ,W?THE>)
+
+						(ELSE
+						; "Set P-ITBL[P-VERB] = TELL"
+						<PUT ,P-ITBL ,P-VERB ,ACT?TELL>
+						; "Set P-ITBL[P-VERBN] = 0"
+						<PUT ,P-ITBL ,P-VERBN 0>
+						; "Set WRD = QUOTE (I think? or maybe quote marks? unclear)"
+						<SET WRD ,W?QUOTE>)>
+					)
+				>
+				; "ENDOF sub cond 2"
+
+				; "STARTOF sub cond 3 (THE BIG ONE!!!!)"
+		       <COND 
+			   
+			   ; "WORD == 'THEN' || '.' || 'QUOTE OR QUOTATION MARKS'"
+			   (<EQUAL? .WRD ,W?THEN ,W?PERIOD ,W?QUOTE>
+
+				; "Then do:"
+				
+				<COND 
+				; "If WRD is a QUOTE or quotation marks"	
+				(<EQUAL? .WRD ,W?QUOTE>
+				    ;
+					<COND 
+					; "If QUOTE-FLAG is set, set QUOTE-FLAG = NULL"
+					(,QUOTE-FLAG <SETG QUOTE-FLAG <>>)
+					; "Else, set QUOTE-FLAG = NULL ( or something? IDK!)"
+					(T <SETG QUOTE-FLAG T>)>)
+				>
+
+
+				<OR 
+					<ZERO? ,P-LEN>
+					<SETG P-CONT <+ .PTR ,P-LEXELEN>>
+				>
+				<PUTB ,P-LEXV ,P-LEXWORDS ,P-LEN>
+				<RETURN>)
+
+
 			     (<AND <SET VAL
 					<WT? .WRD
 					     ,PS?DIRECTION
@@ -441,6 +538,8 @@
 			      <COND (<NOT <G? .LEN 2>>
 				     <SETG QUOTE-FLAG <>>
 				     <RETURN>)>)
+
+
 			     (<AND <SET VAL <WT? .WRD ,PS?VERB ,P1?VERB>>
 				   <NOT .VERB>>
 			      <SET VERB .VAL>
@@ -451,6 +550,8 @@
 						    <SET CNT
 							 <+ <* .PTR 2> 2>>>>
 			      <PUTB ,P-VTBL 3 <GETB ,P-LEXV <+ .CNT 1>>>)
+
+
 			     (<OR <SET VAL <WT? .WRD ,PS?PREPOSITION 0>>
 				  <EQUAL? .WRD ,W?ALL ,W?ONE ;,W?BOTH>
 				  <WT? .WRD ,PS?ADJECTIVE>
@@ -471,7 +572,7 @@
 					    <PUT ,P-ITBL ,P-PREP1N .WRD>)>)
 				    (<EQUAL? ,P-NCN 2>
 				     <TELL
-"There were too many nouns in that sentence." CR>
+						"There were too many nouns in that sentence." CR>
 				     <RFALSE>)
 				    (T
 				     <SETG P-NCN <+ ,P-NCN 1>>
@@ -481,6 +582,8 @@
 				     <COND (<L? .PTR 0>
 					    <SETG QUOTE-FLAG <>>
 					    <RETURN>)>)>)
+
+
 			     (<EQUAL? .WRD ,W?OF>
 			      <COND (<OR <NOT .OF-FLAG>
 					 <EQUAL? .NW ,W?PERIOD ,W?THEN>>
@@ -488,20 +591,31 @@
 				     <RFALSE>)
 				    (T
 				     <SET OF-FLAG <>>)>)
+
+
 			     (<WT? .WRD ,PS?BUZZ-WORD>)
+
+
 			     (<AND <EQUAL? .VERB ,ACT?TELL>
 				   <WT? .WRD ,PS?VERB ,P1?VERB>
 				   <EQUAL? ,WINNER ,PLAYER>>
 			      <TELL
-"Please consult your manual for the correct way to talk to other people
-or creatures." CR>
+					"Please consult your manual for the correct way to talk to other people
+					or creatures." CR>
 			      <RFALSE>)
+
+
 			     (T
 			      <CANT-USE .PTR>
-			      <RFALSE>)>)
+			      <RFALSE>)
+			>
+		)
 		      (T
 		       <UNKNOWN-WORD .PTR>
 		       <RFALSE>)>
+		; "End of mega COND"
+
+
 		<SET LW .WRD>
 		<SET PTR <+ .PTR ,P-LEXELEN>>>)>
 	<PUT ,OOPS-TABLE ,O-PTR <>>
