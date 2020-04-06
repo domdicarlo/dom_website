@@ -111,7 +111,6 @@
 		       OWINNER OMERGED LEN (DIR <>) (NW 0) (LW 0) (CNT -1))
   ;"some loop"
 	<REPEAT ()
-	 ;"if the first parentheses is true, then do the second parentheses"
 	 ; "If CNT + 1 > P-ITBLLEN, simply return"
 	 ; "Hmm, I think P-ITBLLEN is some sort of upper bound on phrase length"
 	 ; "Notice CNT starts as -1, so this first cond sets CNT to 0"
@@ -420,8 +419,8 @@
 		   ; "Set P-GETFLAGS = 0"
 	       <SETG P-GETFLAGS 0>
 
-		   ; "New loop"
-	       <REPEAT ()
+	; "New loop (Huge Loop it turns out)"
+	<REPEAT ()
 		  
 		; "Start of mega COND"
 		<COND 
@@ -503,59 +502,123 @@
 					(T <SETG QUOTE-FLAG T>)>)
 				>
 
-
+				; "simple OR: "
+				; "dont get why this OR is there... when is its result evaluated?"
 				<OR 
+				 	; "is P-LEN == 0?"
 					<ZERO? ,P-LEN>
+					; "or, is PTR + P-LEXELEN null or not? Set P-CONT to that val"
 					<SETG P-CONT <+ .PTR ,P-LEXELEN>>
 				>
+				; "set P-LEN bytes of P-LEXV = P-LEXWORDS"
+				;' "or, P-LEXV[0:P-LEN] = P-LEXWORDS[0:P-LEN]"
 				<PUTB ,P-LEXV ,P-LEXWORDS ,P-LEN>
 				<RETURN>)
 
+				; "Okay let's unpack this boy"
+				; "First, here is the condition:"
+			     (<AND 
 
-			     (<AND <SET VAL
-					<WT? .WRD
-					     ,PS?DIRECTION
-					     ,P1?DIRECTION>>
+				 	<SET VAL
+					    ; "Checks if WRD is the correct part of speech. This checks"
+						; "if word is a direction I believe."
+						<WT? .WRD
+							,PS?DIRECTION
+							,P1?DIRECTION>>
+						; "This whole thing sets VAL to the DIRECTION (if given)"
+						; "So maybe this only works if the command is to GO somewhere?"
+
+					; "Check is VERB == ACT?WALK"
+					; "So above hypothesis seems correct"
 				   <EQUAL? .VERB <> ,ACT?WALK>
+
+					; "One of these"
+
+					; "Len == 1"
 				   <OR <EQUAL? .LEN 1>
+						; "LEN == 2"
 				       <AND <EQUAL? .LEN 2>
-					    <EQUAL? .VERB ,ACT?WALK>>
+					    ; "And the verb is ACT?WALK"
+							<EQUAL? .VERB ,ACT?WALK>>
+
+						; "NW == THEN || . || "QUOTE""
 				       <AND <EQUAL? .NW
 					            ,W?THEN
 					            ,W?PERIOD
 					            ,W?QUOTE>
-					    <NOT <L? .LEN 2>>>
+				            ;"and LEN < 2"
+							<NOT <L? .LEN 2>>>
+
+						; "QUOTE-FLAG is on"
 				       <AND ,QUOTE-FLAG
-					    <EQUAL? .LEN 2>
-					    <EQUAL? .NW ,W?QUOTE>>
-				       <AND <G? .LEN 2>
-					    <EQUAL? .NW ,W?COMMA ,W?AND>>>>
+					       ; "LEN == 2"
+							<EQUAL? .LEN 2>
+							; "NW == "QUOTE""
+							<EQUAL? .NW ,W?QUOTE>>
+
+				       <AND 
+							; "LEN > 2"
+					   		<G? .LEN 2>
+							 ; "NW == COMMA || NW == AND"
+							<EQUAL? .NW ,W?COMMA ,W?AND>>
+					>
+						
+				  >
+
+				; "Then: "
+				 ; "set DIR = VAL"
 			      <SET DIR .VAL>
-			      <COND (<EQUAL? .NW ,W?COMMA ,W?AND>
+
+			      <COND 
+				     ; "IF NW == , || NW == AND"
+				    (<EQUAL? .NW ,W?COMMA ,W?AND>
+					; "Set P-LEXV[PTR + P-LEXELEN] = THEN"
 				     <PUT ,P-LEXV
 					  <+ .PTR ,P-LEXELEN>
 					  ,W?THEN>)>
-			      <COND (<NOT <G? .LEN 2>>
+
+			      <COND 
+				    ; "If ! (LEN > 2)"
+				  	(<NOT <G? .LEN 2>>
+
+					  ; "Set QUOTE-FLAG = NULL"
 				     <SETG QUOTE-FLAG <>>
-				     <RETURN>)>)
+				     <RETURN>)>
+				  )
 
-
-			     (<AND <SET VAL <WT? .WRD ,PS?VERB ,P1?VERB>>
-				   <NOT .VERB>>
+			     (
+				  ; "If this:"
+				  <AND 
+					; "Set VAL = a verb if WRD is a verb"
+					<SET VAL <WT? .WRD ,PS?VERB ,P1?VERB>>
+					; "VERB is NOT (maybe, VERB is not filled yet?)"
+					<NOT .VERB>>
+				
+				  ; "Then do this: "
+				  ; "set VERB = VAL"
 			      <SET VERB .VAL>
+				  ; "set P-ITBL[P-VERB] = VAL"
 			      <PUT ,P-ITBL ,P-VERB .VAL>
+				  ; "set P-ITBL[P-VERBN] = P-VTBL"
 			      <PUT ,P-ITBL ,P-VERBN ,P-VTBL>
+				  ; "set P-VTBL[0] = WRD"
 			      <PUT ,P-VTBL 0 .WRD>
+				  ; "set P-VTBL[2] = P-LEXV[CNT + (2 * PTR) + 2]"
 			      <PUTB ,P-VTBL 2 <GETB ,P-LEXV
 						    <SET CNT
 							 <+ <* .PTR 2> 2>>>>
+				  ; "set  P-VTBL[3] = P-LEXV[CNT + 1]"
 			      <PUTB ,P-VTBL 3 <GETB ,P-LEXV <+ .CNT 1>>>)
 
-
-			     (<OR <SET VAL <WT? .WRD ,PS?PREPOSITION 0>>
+				; "Next case:"
+				; "If one of these is true:"
+			     (<OR 
+				  <SET VAL <WT? .WRD ,PS?PREPOSITION 0>>
 				  <EQUAL? .WRD ,W?ALL ,W?ONE ;,W?BOTH>
 				  <WT? .WRD ,PS?ADJECTIVE>
 				  <WT? .WRD ,PS?OBJECT>>
+
+				  ; "Then do this stuff:"
 			      <COND (<AND <G? ,P-LEN 1>
 					  <EQUAL? .NW ,W?OF>
 					  <ZERO? .VAL>
@@ -583,7 +646,7 @@
 					    <SETG QUOTE-FLAG <>>
 					    <RETURN>)>)>)
 
-
+				 ; "Next case:"
 			     (<EQUAL? .WRD ,W?OF>
 			      <COND (<OR <NOT .OF-FLAG>
 					 <EQUAL? .NW ,W?PERIOD ,W?THEN>>
@@ -592,10 +655,10 @@
 				    (T
 				     <SET OF-FLAG <>>)>)
 
-
+				; "Next case: "
 			     (<WT? .WRD ,PS?BUZZ-WORD>)
 
-
+				; "Next case: "
 			     (<AND <EQUAL? .VERB ,ACT?TELL>
 				   <WT? .WRD ,PS?VERB ,P1?VERB>
 				   <EQUAL? ,WINNER ,PLAYER>>
@@ -604,20 +667,26 @@
 					or creatures." CR>
 			      <RFALSE>)
 
-
+				; "Next case: "
 			     (T
 			      <CANT-USE .PTR>
 			      <RFALSE>)
 			>
 		)
-		      (T
-		       <UNKNOWN-WORD .PTR>
-		       <RFALSE>)>
+		; "End of The Word is Not NULL case "
+
+             ; "Else case, I guess the word was NULL:"
+		(T
+		<UNKNOWN-WORD .PTR>
+		<RFALSE>)>
 		; "End of mega COND"
 
-
+		; "unconitionally: "
 		<SET LW .WRD>
-		<SET PTR <+ .PTR ,P-LEXELEN>>>)>
+		<SET PTR <+ .PTR ,P-LEXELEN>>>)
+		; "End of Big Fucking Loop"
+		>
+
 	<PUT ,OOPS-TABLE ,O-PTR <>>
 	<COND (.DIR
 	       <SETG PRSA ,V?WALK>
