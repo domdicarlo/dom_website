@@ -1,6 +1,9 @@
 			"Generic PARSER file for
 			    The ZORK Trilogy
 		       started on 7/28/83 by MARC"
+		
+		  "Hacked by Dominic DiCarlo 4/2020 Quarantine Days"
+			"Adding plenty of spacing and comments"
 
 ;"WHICH and TRAP retrofixes installed"
 
@@ -110,12 +113,19 @@
 <ROUTINE PARSER ("AUX" (PTR ,P-LEXSTART) WRD (VAL 0) (VERB <>) (OF-FLAG <>)
 		       OWINNER OMERGED LEN (DIR <>) (NW 0) (LW 0) (CNT -1))
   ;"some loop"
+
+	; "Okay so this first loop "
+	; "I have the feeling we simply take all the words in the
+	   input, and load them in."
+  ; "Think like some primitive strtok"
+	; "It's just a feeling though cuz Im not sure"
 	<REPEAT ()
 	 ; "If CNT + 1 > P-ITBLLEN, simply return"
 	 ; "Hmm, I think P-ITBLLEN is some sort of upper bound on phrase length"
 	 ; "Notice CNT starts as -1, so this first cond sets CNT to 0"
 		<COND (<G? <SET CNT <+ .CNT 1>> ,P-ITBLLEN> <RETURN>)
 				   ;"T here means ELSE essentially"
+
 		      (T
 					;"If the P-OFLAG is NOT set:"
 		       <COND (<NOT ,P-OFLAG>
@@ -125,6 +135,8 @@
 					; "Unconditionally, so long as we didnt return, set the .CNT"
 					; "field of P-ITBL to 0"
 		       <PUT ,P-ITBL .CNT 0>)>>
+
+
   ;"Set a bunch of variables. SETG is setting a global variable"
 	<SET OWINNER ,WINNER>
 	<SET OMERGED ,P-MERGED>
@@ -136,7 +148,11 @@
 	<PUT ,P-PRSO ,P-MATCHLEN 0>
 	<PUT ,P-PRSI ,P-MATCHLEN 0>
 	<PUT ,P-BUTS ,P-MATCHLEN 0>
-	; "QUOTE-FLAG is off AND  some cmp with WINNER and PLAYER... but not one where they are exactly equal either.."
+
+	; "No idea what this cond is doing"
+	; "Aside from setting HERE and LIT, which make sense"
+	; "QUOTE-FLAG is off AND  some cmp with WINNER and PLAYER...
+	   but not one where they are exactly equal either.."
 	; "Since we see that we set winner to player in the next line"
 	<COND (<AND <NOT ,QUOTE-FLAG> <N==? ,WINNER ,PLAYER>>
 	       <SETG WINNER ,PLAYER>
@@ -146,8 +162,10 @@
 		      <SETG HERE <LOC ,WINNER>>)>
 				; "check whether the area we are at is LIT (fire lol)"
 	       <SETG LIT <LIT? ,HERE>>)>
+
 	<COND 
-				; "First if CASE --> I'm thinking this one is asking if RESERVE-PTR is not equal to NULL"
+				; "First if CASE --> I'm thinking this one is asking 
+				   if RESERVE-PTR is not equal to NULL"
 				(,RESERVE-PTR
 	 		   ; "set pointer to the reserve pointer"
 	       <SET PTR ,RESERVE-PTR>
@@ -163,7 +181,9 @@
 				 ;" set back the pointer to nothing I guess?"
 	       <SETG RESERVE-PTR <>>
 	       <SETG P-CONT <>>)
-				; "Second else if CASE --> I'm thinking this one is asking if P-CONT is not equal to NULL"
+				 
+				; "Second else if CASE --> I'm thinking this one is asking 
+				  if P-CONT is not equal to NULL"
 	      (,P-CONT
 					; "set this PTR var to P-CONT"
 	       <SET PTR ,P-CONT>
@@ -175,6 +195,7 @@
 		      <CRLF>)>
 					; "set this P-CONT global var to NULL again"
 	       <SETG P-CONT <>>)
+
 				; "Else CASE --"
 	      (T
 				; "set player to winner"
@@ -197,9 +218,10 @@
 	       <TELL ">">
 				 ; "read what's in P-INBUF into P-LEXV I believe"
 	       <READ ,P-INBUF ,P-LEXV>)> 
+; "End of reserve PTR cond"
 
-				 ;"okay we are not in any sort of cond now"
-				 ;"set P-LEN glob var to the P-LEXWORDS field of P-LEXV"
+	;"okay we are not in any sort of cond now"
+	;"set P-LEN glob var to the P-LEXWORDS field of P-LEXV"
 	<SETG P-LEN <GETB ,P-LEXV ,P-LEXWORDS>>
 	; "if the length of the input or something is 0, we dunno what they said"
 	<COND (<ZERO? ,P-LEN> <TELL "I beg your pardon?" CR> <RFALSE>)>
@@ -391,7 +413,7 @@
 		; "End of if case for AGAIN or G case"
 
 		; "All other cases. Looks like we are headed to the meat of the parser"
-	      (T
+    (T
 		   ; "set AGAIN-LEXV to hold the same mem as P-LEXV"
 	       <STUFF ,P-LEXV ,AGAIN-LEXV>
 		   ; "Set OOPS-INBUF to hold the same memory as P-INBUF"
@@ -419,19 +441,21 @@
 		   ; "Set P-GETFLAGS = 0"
 	       <SETG P-GETFLAGS 0>
 
-	; "New loop (Huge Loop it turns out)"
-	<REPEAT ()
+		; "New loop (Huge Loop it turns out)"
+		; "BFL (Big Fucking Loop)"
+		<REPEAT ()
 		  
 		; "Start of mega COND"
-		<COND 
+			<COND 
 			  ; "Exit case. --If P-LEN < 0"
 			  (<L? <SETG P-LEN <- ,P-LEN 1>> 0>
 			  ; "set QUOTE-FLAG = NULL"
 			  <SETG QUOTE-FLAG <>>
 			  <RETURN>)
 
-              ; "Case 1 (big case): The word is not NULL"
-		      (<OR 
+       ; "Case 1 (big case): The word is not NULL"
+		    (<OR 
+				; "If the next word is either in the lexicon or a number"
 				; "If either P-LEXV[PTR] !== NULL"
 			    <SET WRD <GET ,P-LEXV .PTR>>
 				; "Or PTR is a number"
@@ -440,6 +464,7 @@
 				; "then do ALL below"
 
 				; "Sub cond 1"
+				; "Check if P-LEN == 0"
 				<COND 
 					;"If P-LEN == 0"
 					(<ZERO? ,P-LEN> 
@@ -447,27 +472,36 @@
 					<SET NW 0>)
 					; "Else case:"
 					(T 
-					<SET NW <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>>)
+						<SET NW <GET ,P-LEXV <+ .PTR ,P-LEXELEN>>>)
 				>
 				; "ENDOF Sub cond 1"
 
 				; "StartOF Sub cond 2"
+				; ""
 				<COND 
-
+			    ; "here we have a check if its speech"
 					(<AND <EQUAL? .WRD ,W?TO>
-					<EQUAL? .VERB ,ACT?TELL ;,ACT?ASK>>
+				  			<EQUAL? .VERB ,ACT?TELL ;,ACT?ASK>>
 
+				  ; "THEN do"
 					<SET WRD ,W?QUOTE>)
 
-					( ; "If WRD == THEN && P-LEN > 0 && NO Verb && Not a quote (QUOTE-FLAG == NULL)"
+					( 
+					; "If WRD == THEN 
+					  && P-LEN > 0 
+						&& NO Verb yet
+						&& Not a quote (QUOTE-FLAG == NULL)"
 					<AND <EQUAL? .WRD ,W?THEN>
-					<G? ,P-LEN 0>
-					<NOT .VERB>
-					<NOT ,QUOTE-FLAG> ;"Last NOT added 7/3">
+				 		 	 <G? ,P-LEN 0>
+					     <NOT .VERB>
+					     <NOT ,QUOTE-FLAG> ;"Last NOT added 7/3"> ; "not my comment"
 
-					; "Then, enter this new cond"
+				  ; "Then do all below:"
+
+					; "enter this new cond"
 					<COND 
-					(	 ; "If LW == 0 || LW == '.' (a period)"
+
+  					(	 ; "If LW == 0 || LW == '.' (a period)"
 						<EQUAL? .LW 0 ,W?PERIOD>
 						; "then set WRD = 'THE'"
 						<SET WRD ,W?THE>)
@@ -483,14 +517,13 @@
 				>
 				; "ENDOF sub cond 2"
 
-				; "STARTOF sub cond 3 (THE BIG ONE!!!!)"
-		       <COND 
+				; "STARTOF sub cond 3 "
+		   <COND 
 			   
 			   ; "WORD == 'THEN' || '.' || 'QUOTE OR QUOTATION MARKS'"
-			   (<EQUAL? .WRD ,W?THEN ,W?PERIOD ,W?QUOTE>
+			 (<EQUAL? .WRD ,W?THEN ,W?PERIOD ,W?QUOTE>
 
-				; "Then do:"
-				
+				; "Then do:"				
 				<COND 
 				; "If WRD is a QUOTE or quotation marks"	
 				(<EQUAL? .WRD ,W?QUOTE>
@@ -504,6 +537,9 @@
 
 				; "simple OR: "
 				; "dont get why this OR is there... when is its result evaluated?"
+				; "depending on how the language evals an OR
+				   statement, the first statement being true might
+					 prevent the next statement from running"
 				<OR 
 				 	; "is P-LEN == 0?"
 					<ZERO? ,P-LEN>
@@ -517,7 +553,7 @@
 
 				; "Okay let's unpack this boy"
 				; "First, here is the condition:"
-			     (<AND 
+			  (<AND 
 
 				 	<SET VAL
 					    ; "Checks if WRD is the correct part of speech. This checks"
@@ -562,8 +598,7 @@
 							 ; "NW == COMMA || NW == AND"
 							<EQUAL? .NW ,W?COMMA ,W?AND>>
 					>
-						
-				  >
+				>
 
 				; "Then: "
 				 ; "set DIR = VAL"
@@ -585,8 +620,10 @@
 				     <SETG QUOTE-FLAG <>>
 				     <RETURN>)>
 				  )
+				; "End of GO subcase"
 
-			     (
+			  ; "Verb subcase"
+			  (
 				  ; "If this:"
 				  <AND 
 					; "Set VAL = a verb if WRD is a verb"
@@ -609,56 +646,95 @@
 							 <+ <* .PTR 2> 2>>>>
 				  ; "set  P-VTBL[3] = P-LEXV[CNT + 1]"
 			      <PUTB ,P-VTBL 3 <GETB ,P-LEXV <+ .CNT 1>>>)
+				; "end of verb subcase"
+				
+
 
 				; "Next case:"
 				; "If one of these is true:"
-			     (<OR 
+			   (<OR 
 				  <SET VAL <WT? .WRD ,PS?PREPOSITION 0>>
+					; "If WRD is ALL or WRD is ONE"
 				  <EQUAL? .WRD ,W?ALL ,W?ONE ;,W?BOTH>
+					; "Maybe: Is WRD an ADJECTIVE or OBJECT?"
 				  <WT? .WRD ,PS?ADJECTIVE>
 				  <WT? .WRD ,PS?OBJECT>>
 
 				  ; "Then do this stuff:"
-			      <COND (<AND <G? ,P-LEN 1>
-					  <EQUAL? .NW ,W?OF>
-					  <ZERO? .VAL>
-					  <NOT <EQUAL? .WRD
-						       ,W?ALL ,W?ONE ,W?A>>
-					  ;<NOT <EQUAL? .WRD ,W?BOTH>>>
-				     <SET OF-FLAG T>)
-				    (<AND <NOT <ZERO? .VAL>>
-				          <OR <ZERO? ,P-LEN>
-					      <EQUAL? .NW ,W?THEN ,W?PERIOD>>>
-				     <SETG P-END-ON-PREP T>
-				     <COND (<L? ,P-NCN 2>
-					    <PUT ,P-ITBL ,P-PREP1 .VAL>
-					    <PUT ,P-ITBL ,P-PREP1N .WRD>)>)
-				    (<EQUAL? ,P-NCN 2>
-				     <TELL
-						"There were too many nouns in that sentence." CR>
-				     <RFALSE>)
-				    (T
-				     <SETG P-NCN <+ ,P-NCN 1>>
-				     <SETG P-ACT .VERB>
-				     <OR <SET PTR <CLAUSE .PTR .VAL .WRD>>
-					 <RFALSE>>
-				     <COND (<L? .PTR 0>
-					    <SETG QUOTE-FLAG <>>
-					    <RETURN>)>)>)
+			      <COND 
+
+							(<AND 
+							; "P-LEN greater than 1"
+							<G? ,P-LEN 1>
+							; "NW equal to 'OF' (WHAT IS NW????)"
+							<EQUAL? .NW ,W?OF>
+							<ZERO? .VAL>
+							; "WRD is not equal to ALL, ONE, or A"
+							<NOT <EQUAL? .WRD
+										,W?ALL ,W?ONE ,W?A>>
+							;<NOT <EQUAL? .WRD ,W?BOTH>>>
+
+							; "If all the above, then set OF-FLAG to T"
+							; "T is usually a token, so not exactly sure what's happening
+							   here"
+							<SET OF-FLAG T>)
+
+							; "Else if: "
+							(
+								; "If VAL !== ZERO"
+								<AND <NOT <ZERO? .VAL>>
+								    ; "If P-LEN == 0 || NW == THEN || NW == . "
+										<OR <ZERO? ,P-LEN>
+										   	<EQUAL? .NW ,W?THEN ,W?PERIOD>>>
+
+							; "Then do:"
+							<SETG P-END-ON-PREP T>
+							<COND 
+								; "If P-NCN < 2"
+								(<L? ,P-NCN 2>
+
+								; "Set the P-ITBL vals"
+								<PUT ,P-ITBL ,P-PREP1 .VAL>
+								<PUT ,P-ITBL ,P-PREP1N .WRD>)>)
+
+							; "Bad speech case "
+							(<EQUAL? ,P-NCN 2>
+							<TELL
+							"There were too many nouns in that sentence." CR>
+							<RFALSE>) 
+
+							; "Else case"
+							(T
+								<SETG P-NCN <+ ,P-NCN 1>>
+								<SETG P-ACT .VERB>
+
+								<OR <SET PTR <CLAUSE .PTR .VAL .WRD>>
+										<RFALSE>>
+
+								<COND (<L? .PTR 0>
+									<SETG QUOTE-FLAG <>>
+									<RETURN>)>)
+						>)
 
 				 ; "Next case:"
 			     (<EQUAL? .WRD ,W?OF>
-			      <COND (<OR <NOT .OF-FLAG>
-					 <EQUAL? .NW ,W?PERIOD ,W?THEN>>
-				     <CANT-USE .PTR>
-				     <RFALSE>)
-				    (T
-				     <SET OF-FLAG <>>)>)
+			   
+				    <COND 
+							(<OR <NOT .OF-FLAG>
+									<EQUAL? .NW ,W?PERIOD ,W?THEN>>
+
+							<CANT-USE .PTR>
+							<RFALSE>)
+
+							(T
+							<SET OF-FLAG <>>)>)
 
 				; "Next case: "
+				  ;" Some kind of BUZZ WORD?"
 			     (<WT? .WRD ,PS?BUZZ-WORD>)
 
 				; "Next case: "
+				; "Bad attempt to talk to something in the dungeon"
 			     (<AND <EQUAL? .VERB ,ACT?TELL>
 				   <WT? .WRD ,PS?VERB ,P1?VERB>
 				   <EQUAL? ,WINNER ,PLAYER>>
@@ -675,15 +751,21 @@
 		)
 		; "End of The Word is Not NULL case "
 
-             ; "Else case, I guess the word was NULL:"
+    ; "Else case, I guess the word was NULL:"
+		; "This is the case where we break out of the loop"
+		; "And apparently the word reaches NULL, so we have made"
+		; "our way through the input"
 		(T
-		<UNKNOWN-WORD .PTR>
-		<RFALSE>)>
+			<UNKNOWN-WORD .PTR>
+			<RFALSE>)>
 		; "End of mega COND"
 
 		; "unconitionally: "
+		; "Is LW last word?"
 		<SET LW .WRD>
-		<SET PTR <+ .PTR ,P-LEXELEN>>>)
+		<SET PTR <+ .PTR ,P-LEXELEN>>
+		>
+		)
 		; "End of Big Fucking Loop"
 		>
 
