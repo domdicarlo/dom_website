@@ -28,3 +28,21 @@ I write the blog posts in markdown, and then simply copy and paste my work into 
 
 My blog consists of two possible views, the index - where I simply list all posts and their links and dates, and view_post - where a template is used to load the blog post into a pretty page. Both of these were quite simple to code in Django. The index view simply gets the top 5 latest posts from the blog model, and then uses this to render the index page and populate it with post names. The post view uses the slug to build a url (which is what a slug is in web-dev). It then populates the blog template with the blog data. Overall, these work simply but it was nice to get acquainted with Django in this way.
 
+
+### March-April 2020
+
+Wow, alright, time for another update. After a very intense quarter of CS in Winter 2020, I got to return to
+working on the website during spring break. At last, I was able to start working on my text adventure game. 
+
+The game is taking inspiration from old school text adventure games, ala [Zork](https://en.wikipedia.org/wiki/Zork).
+More specifically, I want my game to parse text similarly to this style of game. Now adays, there are fancier
+text parsing systems then the one offered by Zork and other INFOCOM games (the company behind Zork). However,
+I think the one in Zork is clever enough to provide the user with good engagement, while not being too complicated such that the user needs to worry about "gaming" the input too much. 
+
+I started off my game with a simple base found here that I saw in a [youtube video tutorial](https://www.youtube.com/watch?v=CfGsX5huj9U) on building a text-based adventure game. I found a (terminal emulator)[https://terminal.jcubic.pl/] based on JQuery in an effort to give the same feel a player might have had when they booted up Zork on a Commodore 64. The bare-bones base game I started (and can be found at domdicarlo.com/text_game) allows for simple exploration of a dimly lit room using "go" followed by a cardinal direction. There is no way to interact with anything yet, although this is coming soon once I can properly parse text.
+
+To get this parser in Zork, I decided I would try to dig through the old Zork source code, since it is publically available [here](https://github.com/historicalsource/zork1). This may have not been the best decision, since this code has been awfully difficult to read. The language is ZIL, which stands for [Zork Implementation Language](https://archive.org/details/Learning_ZIL_Steven_Eric_Meretzky_1995/mode/2up), which itself is based on MDL (Muddle, or MIT Design Language), which *itself* is based on Lisp. The language isn't the best to look at, and trying to decipher its syntax led me to be very thankful for the modern day C syntax many popular languages are based on today. But what really made the problem worse was the lack of comments and use of white space and indentations. While there may have been a method to the madness there that I wasn't in on, it was mostly just madness for me. 
+
+I have added a ton of comments to the code in my attempt to understand it, which can be found [here](./dom_website/apps/text_game/static/text_game/zork-parser.zil). The next step is to just start writing some code in JS and seeing where I can get with what I have scraped so far from the original parser code. I have now alotted an hour each day to work on this project; we will see how well this works for making progress and if during the academic quarter I can stick to this. Excited to be working on this.
+
+
