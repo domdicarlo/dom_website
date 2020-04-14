@@ -1,0 +1,10 @@
+﻿room,space,north,south,east,west
+a room,Center,North,South,East,West
+a room,North,WALL,Center,North East,North West
+a room,South,Center,WALL,South East,South West
+a room,East,North East,South East,WALL,Center
+a room,West,North West,South West,Center,WALL
+a room,North East,WALL,East,WALL,North
+a room,North West,WALL,West,North,WALL
+a room,South East,East,WALL,WALL,South
+a room,South West,West,WALL,South,WALL
