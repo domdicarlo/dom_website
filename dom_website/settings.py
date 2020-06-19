@@ -103,9 +103,9 @@ WSGI_APPLICATION = 'dom_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'qfbx5pSm3n',
-        'USER': 'qfbx5pSm3n',
-        'PASSWORD': '16o5r1CBxS',
+        'NAME': 'CreK0Gexrd',
+        'USER': 'CreK0Gexrd',
+        'PASSWORD': 'YBo3A22qwo',
         'HOST': 'remotemysql.com',
         'PORT': '3306',
     }
