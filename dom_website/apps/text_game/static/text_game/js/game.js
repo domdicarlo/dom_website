@@ -141,9 +141,8 @@ function printStartInfo() {
 $('body').terminal(
   function(command) {
     playerInput(command);
-  },
- { greetings: ""}, 
- { prompt: '>', name: 'test' });
+  }, 
+ { prompt: '>', greetings: "" });
 
 // give starting message:
 printStartInfo();
